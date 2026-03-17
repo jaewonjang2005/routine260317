@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#efefeb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="충만루틴">
+<link rel="manifest" href="manifest.json">
+<title>충만 루틴</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-p:#ffffff; --bg-s:#f5f5f3; --bg-t:#efefeb;
+  --tx-p:#1a1a18; --tx-s:#6b6b65; --tx-t:#a0a09a;
+  --bd-l:rgba(0,0,0,0.09); --bd-m:rgba(0,0,0,0.17); --bd-h:rgba(0,0,0,0.27);
+  --ok:#0f6e56; --ok-bg:#e1f5ee; --ng:#993c1d; --ng-bg:#faece7;
+  --warn:#ba7517; --warn-bg:#faeeda;
+  --r-md:8px; --r-lg:12px;
+}
+@media (prefers-color-scheme:dark) {
+  :root {
+    --bg-p:#1e1e1c; --bg-s:#2a2a27; --bg-t:#141412;
+    --tx-p:#f0f0ec; --tx-s:#9a9a94; --tx-t:#606059;
+    --bd-l:rgba(255,255,255,0.07); --bd-m:rgba(255,255,255,0.13); --bd-h:rgba(255,255,255,0.22);
+    --ok:#5dcaa5; --ok-bg:#04342c; --ng:#f0997b; --ng-bg:#4a1b0c;
+    --warn:#ef9f27; --warn-bg:#412402;
+  }
+}
+body { font-family:'Noto Sans KR',sans-serif; background:var(--bg-t); color:var(--tx-p); min-height:100vh; padding:1.25rem 1rem 5rem; -webkit-tap-highlight-color:transparent; }
+.app { max-width:540px; margin:0 auto; }
+.header { display:flex; align-items:center; gap:10px; margin-bottom:1.25rem; }
+.header h1 { font-size:19px; font-weight:500; }
+.date-badge { font-family:'DM Mono',monospace; font-size:11px; color:var(--tx-s); background:var(--bg-s); border:0.5px solid var(--bd-l); border-radius:4px; padding:2px 7px; }
+.day-tag { font-size:11px; font-weight:500; padding:3px 9px; border-radius:4px; margin-left:auto; flex-shrink:0; }
+/* 탭 */
+.tabs { display:flex; gap:4px; margin-bottom:1rem; }
+.tab { flex:1; padding:8px 4px; font-size:12px; font-weight:500; text-align:center; border:0.5px solid var(--bd-l); border-radius:var(--r-md); cursor:pointer; color:var(--tx-s); background:var(--bg-p); font-family:'Noto Sans KR',sans-serif; transition:all 0.12s; }
+.tab.active { border-color:var(--bd-h); color:var(--tx-p); background:var(--bg-s); }
+.tab-pane { display:none; } .tab-pane.active { display:block; }
+/* 카드 */
+.card { background:var(--bg-p); border:0.5px solid var(--bd-l); border-radius:var(--r-lg); padding:1.1rem 1.15rem; margin-bottom:9px; }
+.card-title { font-size:10.5px; font-weight:500; color:var(--tx-s); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:13px; display:flex; align-items:center; gap:6px; }
+.dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.dot-m{background:#ef9f27} .dot-e{background:#5dcaa5} .dot-s{background:#7f77dd} .dot-r{background:#d4537e} .dot-cfg{background:#888780}
+/* 체크박스 */
+.check-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:0.5px solid var(--bd-l); cursor:pointer; user-select:none; -webkit-user-select:none; }
+.check-row:last-of-type { border-bottom:none; padding-bottom:0; }
+.check-row:first-of-type { padding-top:0; }
+.cb { width:20px; height:20px; border:1.5px solid var(--bd-m); border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:transparent; transition:all 0.12s; }
+.cb.on { background:var(--ok-bg); border-color:var(--ok); color:var(--ok); }
+.cl { font-size:14px; line-height:1.4; }
+.cl.done { color:var(--tx-t); text-decoration:line-through; }
+/* 필드 */
+.field { margin-top:13px; }
+.field label { font-size:11.5px; color:var(--tx-s); display:block; margin-bottom:5px; }
+.field textarea { width:100%; font-size:14px; font-family:'Noto Sans KR',sans-serif; padding:8px 10px; border:0.5px solid var(--bd-m); border-radius:var(--r-md); background:var(--bg-s); color:var(--tx-p); resize:none; line-height:1.65; }
+.field textarea:focus { outline:none; border-color:var(--bd-h); background:var(--bg-p); }
+/* 학습 블록 */
+.sb { border-left:2px solid var(--bd-l); padding-left:11px; margin-bottom:13px; }
+.sb:last-child { margin-bottom:0; }
+.sb-lbl { font-size:10.5px; font-weight:500; color:var(--tx-s); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:5px; }
+.sb textarea { width:100%; font-size:14px; font-family:'Noto Sans KR',sans-serif; padding:7px 10px; border:0.5px solid var(--bd-m); border-radius:var(--r-md); background:var(--bg-s); color:var(--tx-p); resize:none; min-height:60px; line-height:1.65; }
+.sb textarea:focus { outline:none; border-color:var(--bd-h); background:var(--bg-p); }
+/* rate row */
+.rate-row { display:flex; gap:7px; margin-bottom:11px; }
+.rate-row>div { flex:1; }
+.rate-row label { font-size:11.5px; color:var(--tx-s); display:block; margin-bottom:4px; }
+.rate-row input { width:100%; font-size:13px; font-family:'DM Mono',monospace; padding:7px 9px; border:0.5px solid var(--bd-m); border-radius:var(--r-md); background:var(--bg-s); color:var(--tx-p); }
+.rate-row input:focus { outline:none; border-color:var(--bd-h); background:var(--bg-p); }
+/* 알람 카드 */
+.alarm-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:0.5px solid var(--bd-l); }
+.alarm-row:last-child { border-bottom:none; padding-bottom:0; }
+.alarm-row:first-child { padding-top:0; }
+.alarm-time-inp { font-family:'DM Mono',monospace; font-size:20px; font-weight:500; color:var(--tx-p); background:none; border:none; outline:none; width:80px; padding:0; }
+.alarm-label-inp { flex:1; font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--tx-s); background:none; border:none; outline:none; padding:0; }
+.alarm-label-inp::placeholder { color:var(--tx-t); }
+.toggle-switch { position:relative; width:38px; height:22px; flex-shrink:0; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-track { position:absolute; inset:0; background:var(--bd-m); border-radius:11px; cursor:pointer; transition:background 0.2s; }
+.toggle-switch input:checked + .toggle-track { background:var(--ok); }
+.toggle-thumb { position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:3px; left:3px; transition:transform 0.2s; pointer-events:none; }
+.toggle-switch input:checked ~ .toggle-thumb { transform:translateX(16px); }
+.btn-del { font-size:16px; color:var(--tx-t); background:none; border:none; cursor:pointer; padding:0 2px; line-height:1; }
+.btn-del:hover { color:var(--ng); }
+.btn-add-alarm { width:100%; padding:10px; font-size:13px; color:var(--tx-s); background:none; border:0.5px dashed var(--bd-m); border-radius:var(--r-md); cursor:pointer; font-family:'Noto Sans KR',sans-serif; margin-top:10px; transition:all 0.12s; }
+.btn-add-alarm:hover { background:var(--bg-s); color:var(--tx-p); }
+.notif-banner { display:flex; align-items:center; gap:10px; padding:10px 13px; border-radius:var(--r-md); font-size:13px; margin-bottom:12px; }
+.notif-banner.warn { background:var(--warn-bg); color:var(--warn); }
+.notif-banner.ok { background:var(--ok-bg); color:var(--ok); }
+.notif-banner.info { background:var(--bg-s); color:var(--tx-s); border:0.5px solid var(--bd-l); }
+.btn-notif { font-size:12px; font-weight:500; margin-left:auto; padding:5px 11px; border:0.5px solid currentColor; border-radius:var(--r-md); background:none; color:inherit; cursor:pointer; white-space:nowrap; font-family:'Noto Sans KR',sans-serif; flex-shrink:0; }
+/* 설정 */
+.cfg-section { margin-top:16px; }
+.cfg-label { font-size:11px; color:var(--tx-t); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+.cfg-inp { width:100%; font-size:13px; font-family:'DM Mono',monospace; padding:9px 11px; border:0.5px solid var(--bd-m); border-radius:var(--r-md); background:var(--bg-s); color:var(--tx-p); }
+.cfg-inp:focus { outline:none; border-color:var(--bd-h); background:var(--bg-p); }
+.cfg-hint { font-size:11.5px; color:var(--tx-t); margin-top:5px; line-height:1.7; }
+.cfg-hint a { color:var(--tx-s); }
+/* 버튼 */
+.btn-primary { width:100%; padding:11px; font-size:14px; font-weight:500; font-family:'Noto Sans KR',sans-serif; border:none; border-radius:var(--r-md); background:var(--tx-p); color:var(--bg-p); cursor:pointer; transition:opacity 0.12s; margin-top:10px; }
+.btn-primary:hover { opacity:0.85; }
+.btn-submit { width:100%; padding:13px; font-size:15px; font-weight:500; font-family:'Noto Sans KR',sans-serif; border:0.5px solid var(--bd-m); border-radius:var(--r-lg); background:var(--bg-p); color:var(--tx-p); cursor:pointer; transition:background 0.12s; margin-top:1.1rem; }
+.btn-submit:hover:not(:disabled) { background:var(--bg-s); }
+.btn-submit:active:not(:disabled) { transform:scale(0.99); }
+.btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
+.status-line { text-align:center; font-size:13px; min-height:18px; color:var(--tx-s); margin-top:10px; }
+.status-line.ok { color:var(--ok); } .status-line.err { color:var(--ng); }
+.result-list { margin-top:7px; font-size:12px; line-height:2.1; color:var(--tx-s); }
+.result-list .ok{color:var(--ok)} .result-list .ng{color:var(--ng)} .result-list .sk{color:var(--tx-t)}
+.saved-overlay { text-align:center; padding:2.5rem 1rem; color:var(--tx-s); font-size:14px; line-height:2.2; }
+.saved-big { font-size:36px; margin-bottom:6px; }
+.btn-reset { margin-top:1rem; font-size:13px; color:var(--tx-t); background:none; border:0.5px solid var(--bd-l); border-radius:var(--r-md); padding:7px 16px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; }
+.btn-reset:hover { color:var(--tx-s); border-color:var(--bd-m); }
+.pwa-hint { text-align:center; font-size:11.5px; color:var(--tx-t); margin-top:1.5rem; line-height:1.9; padding:12px; background:var(--bg-s); border-radius:var(--r-md); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>충만 루틴</h1>
+    <span class="date-badge" id="date-badge">--</span>
+    <span class="day-tag" id="day-tag">--</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('routine')">루틴 기록</button>
+    <button class="tab" onclick="switchTab('alarm')">알람</button>
+    <button class="tab" onclick="switchTab('settings')">설정</button>
+  </div>
+
+  <!-- 루틴 탭 -->
+  <div class="tab-pane active" id="tab-routine">
+    <div id="routine-main"></div>
+  </div>
+
+  <!-- 알람 탭 -->
+  <div class="tab-pane" id="tab-alarm">
+    <div id="notif-status"></div>
+    <div class="card">
+      <div class="card-title"><span class="dot dot-m"></span>알람 목록</div>
+      <div id="alarm-list"></div>
+      <button class="btn-add-alarm" onclick="addAlarm()">+ 알람 추가</button>
+    </div>
+    <div class="pwa-hint">
+      홈 화면에 추가하면 앱이 닫혀있어도 알람이 와요<br>
+      iOS: 공유 버튼 → 홈 화면에 추가<br>
+      Android: 브라우저 메뉴 → 앱 설치
+    </div>
+  </div>
+
+  <!-- 설정 탭 -->
+  <div class="tab-pane" id="tab-settings">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-cfg"></span>Notion 연결</div>
+      <div id="token-section"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 상수 ────────────────────────────────────────────────────
+const DS_DAILY  = '834beaee-5790-4b29-a826-76f88fddf93c'
+const DS_STUDY  = '3f036a59-8516-4e55-84e3-22dbf5045500'
+const DS_REVIEW = '72c5f58e-9ca8-4a6a-9e76-d9df78ab4ab2'
+const TOKEN_KEY = 'cman_token'
+const SAVED_KEY = 'cman_saved_date'
+const ALARM_KEY = 'cman_alarms'
+
+const DAYS = ['일','월','화','수','목','금','토']
+const DAY_COLORS = ['#d4537e','#7f77dd','#7f77dd','#7f77dd','#5dcaa5','#5dcaa5','#ef9f27']
+
+const DEFAULT_ALARMS = [
+  { id:'am', time:'08:00', title:'🌅 아침 루틴', body:'충만 다짐 작성 + 단어 암기 시간이에요', enabled:true },
+  { id:'pm', time:'21:30', title:'🌙 저녁 루틴', body:'오늘 하루를 기록할 시간이에요', enabled:true }
+]
+
+const SCHEDULE = {
+  0:{items:[{l:'어학 영역 활동',a:'어학'},{l:'학습 영역 활동',a:'학습'},{l:'멘토단 활동',a:'멘토단'}],hasReview:true},
+  1:{items:[{l:'학습 영역 활동',a:'학습'}]},
+  2:{items:[{l:'수업 영역 활동 (월)',a:'수업'},{l:'어학 영역 활동',a:'어학'}]},
+  3:{items:[{l:'수업 영역 활동 (화)',a:'수업'}]},
+  4:{items:[{l:'수업 영역 활동 (수)',a:'수업'},{l:'어학 영역 활동',a:'어학'},{l:'GDGoC 업무',a:'GDGoC'}]},
+  5:{items:[{l:'수업 영역 활동 (목)',a:'수업'},{l:'어학 영역 활동',a:'어학'},{l:'학습 영역 활동',a:'학습'}]},
+  6:{items:[{l:'수업 영역 활동 (금)',a:'수업'},{l:'어학 영역 활동',a:'어학'},{l:'학습 영역 활동',a:'학습'},{l:'집행부 업무',a:'집행부'}]}
+}
+
+// ── 유틸 ───────────────────────────────────────────────────
+function getToken() { return localStorage.getItem(TOKEN_KEY) || '' }
+function getAlarms() { return JSON.parse(localStorage.getItem(ALARM_KEY) || 'null') || DEFAULT_ALARMS }
+function saveAlarms(a) { localStorage.setItem(ALARM_KEY, JSON.stringify(a)) }
+function todayISO() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+function isSavedToday() { return localStorage.getItem(SAVED_KEY) === todayISO() }
+function markSaved() { localStorage.setItem(SAVED_KEY, todayISO()) }
+function v(id) { return (document.getElementById(id)?.value||'').trim() }
+
+// ── 탭 ────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['routine','alarm','settings']
+    t.classList.toggle('active', names[i]===name)
+  })
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'))
+  document.getElementById('tab-'+name).classList.add('active')
+}
+
+// ── 초기화 ─────────────────────────────────────────────────
+function init() {
+  const now = new Date(), day = now.getDay()
+  const pad = n => String(n).padStart(2,'0')
+  document.getElementById('date-badge').textContent = `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`
+  const tag = document.getElementById('day-tag')
+  tag.textContent = DAYS[day]+'요일'
+  tag.style.cssText = `background:${DAY_COLORS[day]}20;color:${DAY_COLORS[day]};border:0.5px solid ${DAY_COLORS[day]}50`
+  renderRoutine()
+  renderAlarms()
+  renderSettings()
+  registerSW()
+  startAlarmTick()
+}
+
+// ── Service Worker 등록 ─────────────────────────────────────
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) return
+  try {
+    await navigator.serviceWorker.register('./sw.js')
+  } catch(e) { console.warn('SW 등록 실패:', e) }
+}
+
+// ── 알림 권한 & 배너 ────────────────────────────────────────
+async function requestNotifPermission() {
+  if (!('Notification' in window)) return
+  const perm = await Notification.requestPermission()
+  renderAlarms()
+  if (perm === 'granted') {
+    syncAlarmsToSW()
+    startAlarmTick()  // 권한 허용 직후 tick 즉시 등록
+  }
+}
+
+function renderNotifBanner() {
+  if (!('Notification' in window)) {
+    return `<div class="notif-banner info">이 브라우저는 알림을 지원하지 않아요</div>`
+  }
+  if (Notification.permission === 'granted') {
+    return `<div class="notif-banner ok">알림 허용됨 — 설정한 시간에 알람이 와요</div>`
+  }
+  if (Notification.permission === 'denied') {
+    return `<div class="notif-banner warn">알림이 차단됨 — 브라우저 설정에서 허용해주세요</div>`
+  }
+  return `<div class="notif-banner warn">알람을 받으려면 알림 권한이 필요해요 <button class="btn-notif" onclick="requestNotifPermission()">허용하기</button></div>`
+}
+
+// ── 알람 렌더 ──────────────────────────────────────────────
+function renderAlarms() {
+  document.getElementById('notif-status').innerHTML = renderNotifBanner()
+  const alarms = getAlarms()
+  const list = document.getElementById('alarm-list')
+  list.innerHTML = alarms.map((alarm, idx) => `
+  <div class="alarm-row" id="alarm-row-${idx}">
+    <div style="flex:1">
+      <input class="alarm-time-inp" type="time" value="${alarm.time}"
+        onchange="updateAlarm(${idx},'time',this.value)" />
+      <input class="alarm-label-inp" type="text" value="${alarm.title}"
+        placeholder="알람 이름..." onchange="updateAlarm(${idx},'title',this.value)" />
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" ${alarm.enabled?'checked':''} onchange="updateAlarm(${idx},'enabled',this.checked)">
+      <div class="toggle-track"></div>
+      <div class="toggle-thumb"></div>
+    </label>
+    <button class="btn-del" onclick="deleteAlarm(${idx})">×</button>
+  </div>`).join('')
+}
+
+function updateAlarm(idx, key, val) {
+  const alarms = getAlarms()
+  alarms[idx][key] = val
+  saveAlarms(alarms)
+  syncAlarmsToSW()
+}
+
+function addAlarm() {
+  const alarms = getAlarms()
+  alarms.push({ id: Date.now().toString(), time:'09:00', title:'새 알람', enabled:true, body:'충만 루틴 기록 시간이에요' })
+  saveAlarms(alarms)
+  renderAlarms()
+  syncAlarmsToSW()
+}
+
+function deleteAlarm(idx) {
+  const alarms = getAlarms()
+  alarms.splice(idx, 1)
+  saveAlarms(alarms)
+  renderAlarms()
+  syncAlarmsToSW()
+}
+
+// ── SW에 알람 동기화 ────────────────────────────────────────
+async function syncAlarmsToSW() {
+  if (!('serviceWorker' in navigator)) return
+  const reg = await navigator.serviceWorker.ready
+  if (reg.active) {
+    reg.active.postMessage({ type:'SCHEDULE_ALARMS', alarms: getAlarms() })
+  }
+}
+
+// ── 브라우저 탭 열려있을 때 알람 체크 (1분마다) ─────────────
+let alarmTickStarted = false
+function startAlarmTick() {
+  if (alarmTickStarted) return
+  if (Notification.permission !== 'granted') return
+  alarmTickStarted = true
+  setInterval(() => {
+    if (Notification.permission !== 'granted') return
+    const now = new Date()
+    const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+    const alarms = getAlarms()
+    for (const alarm of alarms) {
+      if (!alarm.enabled || alarm.time !== hhmm) continue
+      const key = `alarm_fired_${alarm.id}_${todayISO()}`
+      if (!localStorage.getItem(key)) {
+        new Notification(alarm.title, { body: alarm.body, tag: alarm.id })
+        localStorage.setItem(key, '1')
+      }
+    }
+  }, 60000)
+}
+
+// ── 설정 탭 ───────────────────────────────────────────────
+function renderSettings() {
+  const token = getToken()
+  const el = document.getElementById('token-section')
+  if (token) {
+    el.innerHTML = `
+    <div style="font-size:13px;color:var(--ok);margin-bottom:12px">연결됨 — Notion에 저장 가능</div>
+    <div class="cfg-section">
+      <div class="cfg-label">토큰 변경</div>
+      <input class="cfg-inp" type="password" id="cfg-token" placeholder="새 토큰 입력 (ntn_...)" />
+      <button class="btn-primary" onclick="saveToken()">변경하기</button>
+      <button onclick="clearToken()" style="width:100%;margin-top:6px;padding:9px;font-size:13px;color:var(--ng);background:none;border:0.5px solid var(--ng);border-radius:var(--r-md);cursor:pointer;font-family:'Noto Sans KR',sans-serif;">연결 해제</button>
+    </div>`
+  } else {
+    el.innerHTML = `
+    <p class="cfg-hint" style="margin-bottom:12px">
+      1. <a href="https://www.notion.so/profile/integrations" target="_blank">notion.so/profile/integrations</a> 접속<br>
+      2. New integration → 이름 입력 → 토큰 복사 (<code>ntn_...</code>)<br>
+      3. 각 Notion DB 페이지 ··· → Connections → integration 추가<br>
+      4. 아래에 토큰 붙여넣기
+    </p>
+    <input class="cfg-inp" type="password" id="cfg-token" placeholder="ntn_..." />
+    <button class="btn-primary" onclick="saveToken()">연결하기</button>`
+  }
+}
+
+function saveToken() {
+  const val = v('cfg-token')
+  if (!val) return
+  localStorage.setItem(TOKEN_KEY, val)
+  renderSettings()
+}
+function clearToken() { localStorage.removeItem(TOKEN_KEY); renderSettings() }
+
+// ── 루틴 탭 ───────────────────────────────────────────────
+function renderRoutine() {
+  const el = document.getElementById('routine-main')
+  if (!getToken()) {
+    el.innerHTML = `<div class="card" style="text-align:center;padding:2rem 1rem;color:var(--tx-s);font-size:14px;line-height:2">
+      Notion 토큰을 먼저 설정해주세요<br>
+      <span style="font-size:12px;color:var(--tx-t)">설정 탭에서 입력할 수 있어요</span>
+    </div>`
+    return
+  }
+  if (isSavedToday()) {
+    el.innerHTML = `
+    <div class="saved-overlay">
+      <div class="saved-big">✓</div>
+      <div>오늘 루틴 기록 완료</div>
+      <div style="font-size:12px;color:var(--tx-t);margin-top:4px">Notion DB에 저장됨</div>
+      <button class="btn-reset" onclick="resetToday()">다시 입력하기</button>
+    </div>`
+    return
+  }
+
+  const now = new Date(), day = now.getDay(), sch = SCHEDULE[day]
+  let html = `
+  <div class="card">
+    <div class="card-title"><span class="dot dot-m"></span>아침 체크</div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">충만 다짐 작성</span></div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">단어 암기 (JLPT N2)</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot dot-e"></span>저녁 체크</div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">명상</span></div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">충만 일기 작성</span></div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">운동</span></div>
+    <div class="field"><label>오늘의 감정 한 줄</label><textarea id="emotion" rows="2" placeholder="오늘 어땠어?"></textarea></div>
+    <div class="field"><label>Daily CFR</label><textarea id="cfr" rows="3" placeholder="Celebrate — 잘한 것&#10;Feedback — 개선할 것&#10;Reflect — 오늘의 충만 순간"></textarea></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="dot dot-s"></span>오늘의 활동
+      <span style="margin-left:auto;font-size:10px;color:var(--tx-t);text-transform:none;letter-spacing:0;font-weight:400">${DAYS[day]}요일</span>
+    </div>
+    ${sch.items.map((item,i)=>`
+    <div class="sb">
+      <div class="sb-lbl">${item.l}</div>
+      <textarea id="study-${i}" rows="3" placeholder="${item.l} 내용..."></textarea>
+    </div>`).join('')}
+  </div>`
+
+  if (sch.hasReview) {
+    html += `
+  <div class="card">
+    <div class="card-title"><span class="dot dot-r"></span>주간 회고</div>
+    <div class="field"><label>이번 주 가장 충만했던 순간</label><textarea id="best-moment" rows="2" placeholder="가장 몰입하거나 뿌듯했던 순간은?"></textarea></div>
+    <div class="rate-row">
+      <div><label>아침 루틴</label><input id="r-morning" type="text" placeholder="5/7"></div>
+      <div><label>저녁 루틴</label><input id="r-evening" type="text" placeholder="6/7"></div>
+      <div><label>운동</label><input id="r-exercise" type="text" placeholder="4/7"></div>
+    </div>
+    <div class="field" style="margin-top:0"><label>다음 주 핵심 조정</label><textarea id="next-adjust" rows="2" placeholder="바꾸고 싶은 것 1가지"></textarea></div>
+  </div>`
+  }
+
+  html += `
+  <button class="btn-submit" id="submit-btn" onclick="submitAll()">Notion에 저장하기</button>
+  <div class="status-line" id="status-line"></div>
+  <div class="result-list" id="result-list"></div>`
+
+  el.innerHTML = html
+}
+
+function resetToday() { localStorage.removeItem(SAVED_KEY); renderRoutine() }
+function toggle(row) {
+  row.querySelector('.cb').classList.toggle('on')
+  row.querySelector('.cl').classList.toggle('done')
+}
+function isOn(label) {
+  for (const row of document.querySelectorAll('.check-row'))
+    if (row.querySelector('.cl')?.textContent.includes(label))
+      return row.querySelector('.cb')?.classList.contains('on')
+  return false
+}
+
+// ── Notion API ────────────────────────────────────────────
+function rt(t) { return [{type:'text',text:{content:t||''}}] }
+async function notionPost(ep, body, token) {
+  const res = await fetch(`https://morning-pine-3f22.jjaewon2005.workers.dev/notion/v1/${ep}`, {
+    method:'POST',
+    headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json','Notion-Version':'2022-06-28'},
+    body:JSON.stringify(body)
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message||`HTTP ${res.status}`)
+  return data
+}
+
+async function submitAll() {
+  const token = getToken()
+  if (!token) return
+  const btn = document.getElementById('submit-btn')
+  const st  = document.getElementById('status-line')
+  const rl  = document.getElementById('result-list')
+  btn.disabled=true; st.className='status-line'; st.textContent='저장 중...'; rl.innerHTML=''
+
+  const now = new Date(), day = now.getDay(), sch = SCHEDULE[day]
+  const dateISO = todayISO()
+  const results = []
+
+  try {
+    await notionPost('pages',{
+      parent:{database_id:DS_DAILY},
+      properties:{
+        '날짜':{title:[{text:{content:`${dateISO} (${DAYS[day]})`}}]},
+        '요일':{select:{name:DAYS[day]}},
+        '충만 다짐 작성':{checkbox:isOn('충만 다짐')},
+        '단어 암기 N2':{checkbox:isOn('단어 암기')},
+        '명상':{checkbox:isOn('명상')},
+        '충만 일기 작성':{checkbox:isOn('충만 일기')},
+        '오늘의 감정':{rich_text:rt(v('emotion'))},
+        'Daily CFR':{rich_text:rt(v('cfr'))}
+      }
+    },token)
+    results.push({l:'📋 일간 루틴 기록',ok:true})
+  } catch(e){results.push({l:'📋 일간 루틴 기록',ok:false,err:e.message})}
+
+  for (let i=0;i<sch.items.length;i++){
+    const item=sch.items[i], content=v(`study-${i}`)
+    if(!content){results.push({l:`📒 ${item.l}`,skip:true});continue}
+    try{
+      await notionPost('pages',{
+        parent:{database_id:DS_STUDY},
+        properties:{
+          '제목':{title:[{text:{content:`${dateISO} — ${item.l}`}}]},
+          '날짜':{date:{start:dateISO}},
+          '요일':{select:{name:DAYS[day]}},
+          '영역':{select:{name:item.a}},
+          '세부 내용':{rich_text:rt(content)}
+        }
+      },token)
+      results.push({l:`📒 ${item.l}`,ok:true})
+    }catch(e){results.push({l:`📒 ${item.l}`,ok:false,err:e.message})}
+  }
+
+  if(sch.hasReview){
+    try{
+      await notionPost('pages',{
+        parent:{database_id:DS_REVIEW},
+        properties:{
+          '제목':{title:[{text:{content:`${dateISO} 주간 복기`}}]},
+          '기간':{date:{start:dateISO}},
+          '유형':{select:{name:'주간'}},
+          '가장 충만했던 순간':{rich_text:rt(v('best-moment'))},
+          '아침 루틴 달성':{rich_text:rt(v('r-morning'))},
+          '저녁 루틴 달성':{rich_text:rt(v('r-evening'))},
+          '운동 달성':{rich_text:rt(v('r-exercise'))},
+          '다음 주/달 핵심 조정':{rich_text:rt(v('next-adjust'))}
+        }
+      },token)
+      results.push({l:'🔄 주간 복기',ok:true})
+    }catch(e){results.push({l:'🔄 주간 복기',ok:false,err:e.message})}
+  }
+
+  const anyFail = results.some(r=>!r.ok&&!r.skip)
+  if(!anyFail){
+    markSaved(); st.textContent='모두 저장 완료 ✓'; st.className='status-line ok'
+    setTimeout(()=>renderRoutine(),1200)
+  } else {
+    st.textContent='일부 저장 실패 — 아래 확인'; st.className='status-line err'
+    btn.disabled=false
+  }
+  rl.innerHTML=results.map(r=>
+    r.skip?`<div>${r.l} <span class="sk">내용 없어서 건너뜀</span></div>`:
+    r.ok  ?`<div>${r.l} <span class="ok">저장됨</span></div>`:
+           `<div>${r.l} <span class="ng">실패 — ${r.err}</span></div>`
+  ).join('')
+}
+
+init()
+</script>
+</body>
+</html>
