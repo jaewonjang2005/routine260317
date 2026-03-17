@@ -162,9 +162,9 @@ body { font-family:'Noto Sans KR',sans-serif; background:var(--bg-t); color:var(
 
 <script>
 // ── 상수 ────────────────────────────────────────────────────
-const DS_DAILY  = '0dfbd3a4-4f4a-4c86-8fc2-56862ffa91a1'
-const DS_STUDY  = 'ae26de6f-0125-4851-bcbd-9761ed5c63b9'
-const DS_REVIEW = '82918331-d5ce-4d92-a934-1dd3d4864ef4'
+const DS_DAILY  = '834beaee-5790-4b29-a826-76f88fddf93c'
+const DS_STUDY  = '3f036a59-8516-4e55-84e3-22dbf5045500'
+const DS_REVIEW = '72c5f58e-9ca8-4a6a-9e76-d9df78ab4ab2'
 const TOKEN_KEY = 'cman_token'
 const SAVED_KEY = 'cman_saved_date'
 const ALARM_KEY = 'cman_alarms'
@@ -473,7 +473,7 @@ async function submitAll() {
         '날짜':{title:[{text:{content:`${dateISO} (${DAYS[day]})`}}]},
         '요일':{select:{name:DAYS[day]}},
         '충만 다짐 작성':{checkbox:isOn('충만 다짐')},
-        '단어 암기 N2':{checkbox:isOn('단어 암기')},
+        '단어 암기':{checkbox:isOn('단어 암기')},
         '명상':{checkbox:isOn('명상')},
         '충만 일기 작성':{checkbox:isOn('충만 일기')},
         '오늘의 감정':{rich_text:rt(v('emotion'))},
