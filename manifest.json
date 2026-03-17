@@ -1,0 +1,18 @@
+{
+  "name": "충만 루틴",
+  "short_name": "충만루틴",
+  "description": "매일 루틴을 기록하고 Notion에 저장하는 앱",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#efefeb",
+  "theme_color": "#efefeb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩴</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
