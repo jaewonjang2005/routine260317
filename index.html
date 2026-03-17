@@ -386,7 +386,7 @@ function renderRoutine() {
   <div class="card">
     <div class="card-title"><span class="dot dot-m"></span>아침 체크</div>
     <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">충만 다짐 작성</span></div>
-    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">단어 암기 (JLPT N2)</span></div>
+    <div class="check-row" onclick="toggle(this)"><div class="cb">✓</div><span class="cl">단어 암기 </span></div>
   </div>
   <div class="card">
     <div class="card-title"><span class="dot dot-e"></span>저녁 체크</div>
@@ -473,7 +473,7 @@ async function submitAll() {
         '날짜':{title:[{text:{content:`${dateISO} (${DAYS[day]})`}}]},
         '요일':{select:{name:DAYS[day]}},
         '충만 다짐 작성':{checkbox:isOn('충만 다짐')},
-        '단어 암기 N2':{checkbox:isOn('단어 암기')},
+        '단어 암기':{checkbox:isOn('단어 암기')},
         '명상':{checkbox:isOn('명상')},
         '충만 일기 작성':{checkbox:isOn('충만 일기')},
         '오늘의 감정':{rich_text:rt(v('emotion'))},
